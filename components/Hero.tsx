@@ -104,7 +104,7 @@ export function Hero() {
                             </div>
 
                             {/* Floating Elements */}
-                            <div className="absolute bottom-10 right-10 bg-white dark:bg-neutral-800 p-4 rounded-xl shadow-xl border border-neutral-100 dark:border-neutral-700 animate-bounce duration-[3000ms]">
+                            <div className="absolute bottom-10 right-10 bg-white dark:bg-neutral-800 p-4 rounded-xl shadow-xl border border-neutral-100 dark:border-neutral-700 animate-bounce duration-3000">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
                                         <CheckCircle2 className="w-6 h-6" />
