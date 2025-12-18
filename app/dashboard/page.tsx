@@ -135,6 +135,10 @@ export default function DashboardPage() {
 
                                         <div className="flex gap-4 mb-6">
                                             <div>
+                                                <p className="text-2xl font-bold text-neutral-900 dark:text-white">{form.responses || 0}</p>
+                                                <p className="text-xs text-neutral-500 uppercase tracking-wide">Responses</p>
+                                            </div>
+                                            <div>
                                                 <p className="text-2xl font-bold text-neutral-900 dark:text-white">{form.views || 0}</p>
                                                 <p className="text-xs text-neutral-500 uppercase tracking-wide">Views</p>
                                             </div>

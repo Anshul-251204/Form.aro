@@ -8,13 +8,17 @@ export async function GET() {
     if (!session?.user?.id) {
         return new NextResponse("Unauthorized", { status: 401 })
     }
-    
-    await connectDB()
-    const forms = await Form.find({ userId: session.user.id }).sort({ createdAt: -1 }).lean()
 
+    await connectDB()
+    const forms = await Form.find({ userId: session.user.id }).sort({ createdAt: -1 })
+
+    // Serialize to plain objects
     const serializedForms = forms.map(f => ({
-        ...f,
+        ...f.toObject(),
         id: f._id.toString(),
+        _id: f._id.toString(),
+        createdAt: f.createdAt.toISOString(),
+        updatedAt: f.updatedAt.toISOString(),
     }))
 
     return NextResponse.json(serializedForms)
@@ -26,14 +30,27 @@ export async function POST(request: Request) {
         return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    await connectDB()
-    const body = await request.json()
-    const newForm = await Form.create({
-        userId: session.user.id,
-        title: body.title || "Untitled Form",
-        description: body.description || "",
-        published: false,
-    })
+    try {
+        const body = await request.json()
+        await connectDB()
 
-    return NextResponse.json({ ...newForm.toObject(), id: newForm._id.toString() })
+        const form = await Form.create({
+            userId: session.user.id,
+            title: body.title || "Untitled Form",
+            description: body.description || "",
+            fields: body.fields || [],
+            published: false,
+            views: 0,
+            responses: 0
+        })
+
+        return NextResponse.json({
+            ...form.toObject(),
+            id: form._id.toString(),
+            _id: form._id.toString()
+        })
+    } catch (error) {
+        console.error("Failed to create form", error)
+        return new NextResponse("Error creating form", { status: 500 })
+    }
 }

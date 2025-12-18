@@ -5,14 +5,25 @@ import { useFormEditorStore } from "@/store/form-editor"
 import { use, useState, useEffect } from "react"
 import Link from "next/link"
 import { ArrowLeft, Globe, Lock } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function BuilderPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params)
     const [isSaving, setIsSaving] = useState(false)
     const [isPublished, setIsPublished] = useState(false)
     const { fields, setFields, title, setTitle, description, setDescription } = useFormEditorStore()
+    const router = useRouter()
 
     useEffect(() => {
+        // If creating a new form, skip fetch and init default state
+        if (id === "new") {
+            setTitle("Untitled Form")
+            setDescription("")
+            setFields([])
+            setIsPublished(false)
+            return
+        }
+
         // Fetch form data on mount
         fetch(`/api/forms/${id}`)
             .then(res => {
@@ -31,12 +42,20 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
     }, [id, setFields, setTitle, setDescription])
 
     const handlePreview = () => {
+        if (id === "new") {
+            alert("Please save the form before previewing.")
+            return
+        }
         window.open(`/preview/${id}`, '_blank')
     }
 
     const saveForm = async () => {
-        await fetch(`/api/forms/${id}`, {
-            method: 'PUT',
+        const isNew = id === "new"
+        const url = isNew ? '/api/forms' : `/api/forms/${id}`
+        const method = isNew ? 'POST' : 'PUT'
+
+        const res = await fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 title,
@@ -44,19 +63,33 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                 fields
             })
         })
+
+        if (!res.ok) throw new Error("Failed to save")
+
+        const data = await res.json()
+
+        if (isNew) {
+            // Redirect to the new ID
+            router.replace(`/builder/${data.id}`)
+            return data.id
+        }
+
+        return id
     }
 
     const handlePublish = async () => {
         setIsSaving(true)
         try {
-            await saveForm()
-            await fetch(`/api/forms/${id}`, {
+            const currentId = await saveForm()
+
+            await fetch(`/api/forms/${currentId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ published: true })
             })
             setIsPublished(true)
-            const url = `${window.location.origin}/submit/${id}`
+
+            const url = `${window.location.origin}/submit/${currentId}`
             prompt("Form published! Share this URL:", url)
         } catch (error) {
             console.error('Failed to publish', error)
@@ -135,7 +168,7 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                         Preview
                     </button>
 
-                    {isPublished && (
+                    {isPublished && id !== "new" && (
                         <button
                             onClick={handleUnpublish}
                             disabled={isSaving}

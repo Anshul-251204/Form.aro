@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
-import {connectDB} from "@/lib/db"
+import { connectDB } from "@/lib/db"
 import Form from "@/models/Form"
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -10,6 +10,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const { id } = await params
+
+    console.log("id", id)
     await connectDB()
 
     try {
