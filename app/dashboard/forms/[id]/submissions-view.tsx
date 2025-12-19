@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowLeft, Download, ChevronDown, ChevronRight, Calculator, Eye, FileText } from "lucide-react"
 import { ClientSideTimestamp } from "@/components/ClientSideTimestamp"
 import { useState, Fragment } from "react"
+import { FormField } from "@/store/form-editor"
 
 interface Submission {
     id: string
@@ -14,7 +15,7 @@ interface Submission {
 interface SubmissionsViewProps {
     formId: string
     formTitle: string
-    fields: any[]
+    fields: FormField[]
     submissions: Submission[]
     views: number
 }
@@ -38,7 +39,7 @@ export function SubmissionsView({ formId, formTitle, fields, submissions, views 
                     sub.id,
                     new Date(sub.submittedAt).toLocaleString(),
                     ...fields.map(f => {
-                        const val = sub.data[f.id]
+                        const val = sub.data[f._id]
                         if (typeof val === 'object') return JSON.stringify(val).replace(/,/g, ';')
                         return String(val || '').replace(/,/g, ';')
                     })
@@ -139,8 +140,8 @@ export function SubmissionsView({ formId, formTitle, fields, submissions, views 
                                     {submissions.map((sub) => {
                                         const isExpanded = expandedRows[sub.id]
                                         // Preview first non-empty field value
-                                        const firstValue = fields.find(f => sub.data[f.id])
-                                        const previewText = firstValue ? String(sub.data[firstValue.id] || '') : 'View Details'
+                                        const firstValue = fields.find(f => sub.data[f._id])
+                                        const previewText = firstValue ? String(sub.data[firstValue._id] || '') : 'View Details'
 
                                         return (
                                             <Fragment key={sub.id}>
@@ -163,12 +164,12 @@ export function SubmissionsView({ formId, formTitle, fields, submissions, views 
                                                         <td colSpan={3} className="px-6 py-4">
                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                 {fields.map((field) => (
-                                                                    <div key={field.id} className="bg-white dark:bg-neutral-950 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                                                                    <div key={field._id} className="bg-white dark:bg-neutral-950 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
                                                                         <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide block mb-1">
                                                                             {field.label}
                                                                         </label>
                                                                         <div className="text-sm text-neutral-900 dark:text-white wrap-break-word">
-                                                                            {String(sub.data[field.id] || '-')}
+                                                                            {String(sub.data[field._id] || '-')}
                                                                         </div>
                                                                     </div>
                                                                 ))}

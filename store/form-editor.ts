@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 export type FieldType = 'text' | 'long_text' | 'multiple_choice' | 'checkbox' | 'dropdown' | 'date' | 'number' | 'email'
 
 export interface FormField {
-    id: string
+    _id: string
     type: FieldType
     label: string
     options?: string[] // For MC, Checkbox, Dropdown
@@ -45,7 +45,7 @@ export const useFormEditorStore = create<FormEditorState>()(
             addField: (type) =>
                 set((state) => {
                     const newField: FormField = {
-                        id: uuidv4(),
+                        _id: uuidv4(),
                         type,
                         label: 'New Question',
                         validation: {
@@ -55,23 +55,23 @@ export const useFormEditorStore = create<FormEditorState>()(
                     }
                     return {
                         fields: [...state.fields, newField],
-                        selectedFieldId: newField.id,
+                        selectedFieldId: newField._id,
                     }
                 }),
             removeField: (id) =>
                 set((state) => ({
-                    fields: state.fields.filter((f) => f.id !== id),
+                    fields: state.fields.filter((f) => f._id !== id),
                     selectedFieldId: state.selectedFieldId === id ? null : state.selectedFieldId,
                 })),
             updateField: (id, updates) =>
                 set((state) => ({
-                    fields: state.fields.map((f) => (f.id === id ? { ...f, ...updates } : f)),
+                    fields: state.fields.map((f) => (f._id === id ? { ...f, ...updates } : f)),
                 })),
             selectField: (id) => set({ selectedFieldId: id }),
             moveField: (activeId, overId) =>
                 set((state) => {
-                    const oldIndex = state.fields.findIndex((f) => f.id === activeId)
-                    const newIndex = state.fields.findIndex((f) => f.id === overId)
+                    const oldIndex = state.fields.findIndex((f) => f._id === activeId)
+                    const newIndex = state.fields.findIndex((f) => f._id === overId)
                     const newFields = [...state.fields]
                     const [movedItem] = newFields.splice(oldIndex, 1)
                     newFields.splice(newIndex, 0, movedItem)

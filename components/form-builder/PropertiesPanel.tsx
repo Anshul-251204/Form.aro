@@ -3,7 +3,7 @@ import { Plus, X } from "lucide-react"
 
 export function PropertiesPanel() {
     const { fields, selectedFieldId, updateField, selectField } = useFormEditorStore()
-    const field = fields.find((f) => f.id === selectedFieldId)
+    const field = fields.find((f) => f._id === selectedFieldId)
 
     if (!field) {
         return (
@@ -30,7 +30,7 @@ export function PropertiesPanel() {
                     <input
                         type="text"
                         value={field.label}
-                        onChange={(e) => updateField(field.id, { label: e.target.value })}
+                        onChange={(e) => updateField(field._id, { label: e.target.value })}
                         className="w-full px-3 py-2 rounded-md border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
@@ -40,7 +40,7 @@ export function PropertiesPanel() {
                         type="checkbox"
                         id="required"
                         checked={field.validation?.required ?? field.required ?? false}
-                        onChange={(e) => updateField(field.id, {
+                        onChange={(e) => updateField(field._id, {
                             validation: { ...field.validation, required: e.target.checked }
                         })}
                         className="rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
@@ -57,7 +57,7 @@ export function PropertiesPanel() {
                             <input
                                 type="number"
                                 value={field.validation?.min ?? field.min ?? ''}
-                                onChange={(e) => updateField(field.id, {
+                                onChange={(e) => updateField(field._id, {
                                     validation: {
                                         ...field.validation,
                                         min: e.target.value ? Number(e.target.value) : undefined
@@ -73,7 +73,7 @@ export function PropertiesPanel() {
                             <input
                                 type="number"
                                 value={field.validation?.max ?? field.max ?? ''}
-                                onChange={(e) => updateField(field.id, {
+                                onChange={(e) => updateField(field._id, {
                                     validation: {
                                         ...field.validation,
                                         max: e.target.value ? Number(e.target.value) : undefined
@@ -97,14 +97,14 @@ export function PropertiesPanel() {
                                         onChange={(e) => {
                                             const newOptions = [...(field.options || [])]
                                             newOptions[index] = e.target.value
-                                            updateField(field.id, { options: newOptions })
+                                            updateField(field._id, { options: newOptions })
                                         }}
                                         className="flex-1 px-3 py-1.5 rounded-md border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                     <button
                                         onClick={() => {
                                             const newOptions = field.options?.filter((_, i) => i !== index)
-                                            updateField(field.id, { options: newOptions })
+                                            updateField(field._id, { options: newOptions })
                                         }}
                                         className="p-1.5 text-neutral-400 hover:text-red-500"
                                     >
@@ -116,7 +116,7 @@ export function PropertiesPanel() {
                         <button
                             onClick={() => {
                                 const newOptions = [...(field.options || []), `Option ${(field.options?.length || 0) + 1}`]
-                                updateField(field.id, { options: newOptions })
+                                updateField(field._id, { options: newOptions })
                             }}
                             className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
                         >

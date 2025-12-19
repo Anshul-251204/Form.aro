@@ -19,7 +19,6 @@ export default async function SubmissionsPage({ params }: { params: Promise<{ id
 
     // Fetch form to verify ownership and get title
     const form = await Form.findOne({ _id: id, userId: session.user.id }).lean()
-    console.log(form)
     if (!form) {
         return notFound()
     }

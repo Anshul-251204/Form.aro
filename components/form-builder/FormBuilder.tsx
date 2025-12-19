@@ -60,7 +60,7 @@ export function FormBuilder() {
                             onDragEnd={handleDragEnd}
                         >
                             <SortableContext
-                                items={fields.map((f) => f.id)}
+                                items={fields.map((f) => f._id)}
                                 strategy={verticalListSortingStrategy}
                             >
                                 <div className="space-y-4">
@@ -71,11 +71,11 @@ export function FormBuilder() {
                                     )}
                                     {fields.map((field) => (
                                         <SortableField
-                                            key={field.id}
+                                            key={field._id}
                                             field={field}
-                                            isSelected={selectedFieldId === field.id}
-                                            onSelect={() => selectField(field.id)}
-                                            onRemove={() => removeField(field.id)}
+                                            isSelected={selectedFieldId === field._id}
+                                            onSelect={() => selectField(field._id)}
+                                            onRemove={() => removeField(field._id)}
                                         />
                                     ))}
                                 </div>

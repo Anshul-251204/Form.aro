@@ -4,15 +4,18 @@ import { FormBuilder } from "@/components/form-builder/FormBuilder"
 import { useFormEditorStore } from "@/store/form-editor"
 import { use, useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowLeft, Globe, Lock } from "lucide-react"
+import { ArrowLeft, Globe, Lock, Copy, Check } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 
 export default function BuilderPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params)
     const [isSaving, setIsSaving] = useState(false)
     const [isPublished, setIsPublished] = useState(false)
+    const [copied, setCopied] = useState(false)
     const { fields, setFields, title, setTitle, description, setDescription } = useFormEditorStore()
     const router = useRouter()
+    const { showToast } = useToast()
 
     useEffect(() => {
         // If creating a new form, skip fetch and init default state
@@ -38,12 +41,15 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                 if (data.description) setDescription(data.description)
                 if (data.published !== undefined) setIsPublished(data.published)
             })
-            .catch(err => console.error(err))
-    }, [id, setFields, setTitle, setDescription])
+            .catch(err => {
+                console.error(err)
+                showToast("Failed to load form", "error")
+            })
+    }, [id, setFields, setTitle, setDescription, showToast])
 
     const handlePreview = () => {
         if (id === "new") {
-            alert("Please save the form before previewing.")
+            showToast("Please save the form before previewing", "info")
             return
         }
         window.open(`/preview/${id}`, '_blank')
@@ -89,11 +95,13 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
             })
             setIsPublished(true)
 
-            const url = `${window.location.origin}/submit/${currentId}`
-            prompt("Form published! Share this URL:", url)
+            showToast("Form published successfully!", "success")
+
+            // User requested redirect to dashboard
+            setTimeout(() => router.push('/dashboard'), 1000)
         } catch (error) {
             console.error('Failed to publish', error)
-            alert('Failed to publish form')
+            showToast("Failed to publish form", "error")
         } finally {
             setIsSaving(false)
         }
@@ -103,10 +111,12 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
         setIsSaving(true)
         try {
             await saveForm()
-            alert('Form updated successfully!')
+            showToast("Form updated successfully!", "success")
+            // User requested redirect to dashboard
+            setTimeout(() => router.push('/dashboard'), 1000)
         } catch (error) {
             console.error('Failed to update', error)
-            alert('Failed to update form')
+            showToast("Failed to update form", "error")
         } finally {
             setIsSaving(false)
         }
@@ -123,13 +133,21 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                 body: JSON.stringify({ published: false })
             })
             setIsPublished(false)
-            alert('Form unpublished. It is now in draft mode.')
+            showToast("Form unpublished. It is now in draft mode.", "info")
         } catch (error) {
             console.error('Failed to unpublish', error)
-            alert('Failed to unpublish form')
+            showToast("Failed to unpublish form", "error")
         } finally {
             setIsSaving(false)
         }
+    }
+
+    const handleCopyLink = () => {
+        const url = `${window.location.origin}/submit/${id}`
+        navigator.clipboard.writeText(url)
+        setCopied(true)
+        showToast("Link copied to clipboard", "success")
+        setTimeout(() => setCopied(false), 2000)
     }
 
     return (
@@ -161,6 +179,17 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
+                    {isPublished && id !== "new" && (
+                        <button
+                            onClick={handleCopyLink}
+                            className="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white flex items-center gap-2 transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                            title="Copy Public Link"
+                        >
+                            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            <span className="hidden sm:inline">{copied ? "Copied" : "Copy Link"}</span>
+                        </button>
+                    )}
+
                     <button
                         onClick={handlePreview}
                         className="px-4 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"

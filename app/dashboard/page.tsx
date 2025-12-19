@@ -1,10 +1,13 @@
 "use client"
 
-import { Copy, Plus, Check } from "lucide-react"
+import { Copy, Plus, Check, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
+import { Modal } from "@/components/ui/Modal"
+import FormAroLogo from "@/components/TextLogo"
 
 interface Form {
     id: string
@@ -17,12 +20,14 @@ interface Form {
 
 function CopyButton({ url }: { url: string }) {
     const [copied, setCopied] = useState(false)
+    const { showToast } = useToast()
 
     const handleCopy = (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
         navigator.clipboard.writeText(url)
         setCopied(true)
+        showToast("Link copied to clipboard", "success")
         setTimeout(() => setCopied(false), 2000)
     }
 
@@ -40,7 +45,10 @@ function CopyButton({ url }: { url: string }) {
 export default function DashboardPage() {
     const [forms, setForms] = useState<Form[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [formToDelete, setFormToDelete] = useState<string | null>(null)
     const router = useRouter()
+    const { showToast } = useToast()
 
     useEffect(() => {
         fetch("/api/forms")
@@ -52,13 +60,44 @@ export default function DashboardPage() {
             .catch((err) => {
                 console.error(err)
                 setIsLoading(false)
+                showToast("Failed to load forms", "error")
             })
-    }, [])
+    }, [showToast])
 
     const handleEditClick = (e: React.MouseEvent, formId: string) => {
         e.preventDefault()
         e.stopPropagation()
         router.push(`/builder/${formId}`)
+    }
+
+    const confirmDelete = async () => {
+        if (!formToDelete) return
+
+        try {
+            const res = await fetch(`/api/forms/${formToDelete}`, {
+                method: 'DELETE'
+            })
+
+            if (res.ok) {
+                setForms(forms.filter(f => f.id !== formToDelete))
+                showToast("Form deleted successfully", "success")
+            } else {
+                showToast("Failed to delete form", "error")
+            }
+        } catch (error) {
+            console.error("Failed to delete form", error)
+            showToast("Failed to delete form", "error")
+        } finally {
+            setIsDeleteModalOpen(false)
+            setFormToDelete(null)
+        }
+    }
+
+    const handleDeleteClick = (e: React.MouseEvent, formId: string) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setFormToDelete(formId)
+        setIsDeleteModalOpen(true)
     }
 
     return (
@@ -68,7 +107,8 @@ export default function DashboardPage() {
                     <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
                         F
                     </div>
-                    <span className="font-bold text-xl text-neutral-900 dark:text-white">FormHost</span>
+                    {/* <span className="font-bold text-xl text-neutral-900 dark:text-white">FormHost</span> */}
+                    <FormAroLogo/>
                 </div>
                 <div className="flex items-center gap-4">
                     <button
@@ -146,12 +186,21 @@ export default function DashboardPage() {
                                     </div>
 
                                     <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
-                                        <button
-                                            onClick={(e) => handleEditClick(e, form.id)}
-                                            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white px-3 py-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                                        >
-                                            Edit
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={(e) => handleEditClick(e, form.id)}
+                                                className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white px-3 py-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={(e) => handleDeleteClick(e, form.id)}
+                                                className="text-sm font-medium text-red-600 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                title="Delete Form"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
 
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -168,6 +217,28 @@ export default function DashboardPage() {
                     </div>
                 )}
             </div>
+
+            <Modal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                title="Delete Form?"
+                description="This action cannot be undone. This will permanently delete the form and all its responses."
+            >
+                <div className="flex justify-end gap-3 mt-4">
+                    <button
+                        onClick={() => setIsDeleteModalOpen(false)}
+                        className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={confirmDelete}
+                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                    >
+                        Delete Form
+                    </button>
+                </div>
+            </Modal>
         </div>
     )
 }

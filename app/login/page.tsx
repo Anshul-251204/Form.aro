@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Mail, Lock, Loader2, AlertCircle } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 function LoginForm() {
     const [email, setEmail] = useState("")
@@ -13,136 +14,95 @@ function LoginForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const error = searchParams.get("error")
+    const { showToast } = useToast()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
 
         try {
-            const result = await signIn("credentials", {
-                redirect: false,
+            const res = await signIn("credentials", {
                 email,
                 password,
+                redirect: false
             })
 
-            if (result?.error) {
-                // In a real app, you might want to show specific errors
-                // For this demo, we'll rely on the URL param redirect or local state
-                // But next-auth credentials provider often redirects with error param
-                // If redirect: false, we handle it here:
-                if (result.error === "CredentialsSignin") {
-                    alert("Invalid credentials")
-                } else {
-                    alert("Something went wrong")
-                }
+            if (res?.error) {
+                showToast("Invalid credentials", "error")
             } else {
                 router.push("/dashboard")
-                router.refresh()
+                showToast("Logged in successfully", "success")
             }
         } catch (error) {
-            console.error("Login failed", error)
+            console.error(error)
+            showToast("Something went wrong", "error")
         } finally {
             setIsLoading(false)
         }
     }
 
     return (
-        <div className="w-full max-w-md space-y-8">
-            <div className="text-center">
-                <div className="mx-auto h-12 w-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mb-4">
-                    F
-                </div>
-                <h2 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                    Welcome back
-                </h2>
-                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                    Sign in to your account
-                </p>
+        <div className="bg-white dark:bg-neutral-900 p-8 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 w-full max-w-md">
+            <div className="mb-8 text-center">
+                <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Welcome back</h1>
+                <p className="text-neutral-500 dark:text-neutral-400">Sign in to manage your forms</p>
             </div>
 
-            <div className="bg-white dark:bg-neutral-900 p-8 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3 text-red-600 dark:text-red-400">
-                        <AlertCircle className="h-5 w-5 mt-0.5 shrink-0" />
-                        <div className="text-sm">
-                            <span className="font-medium">Authentication Error</span>
-                            <p className="mt-1 opacity-90">
-                                {error === "CredentialsSignin"
-                                    ? "Invalid email or password."
-                                    : "An error occurred during sign in."}
-                            </p>
-                        </div>
-                    </div>
-                )}
+            {error && (
+                <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-3 rounded-lg flex items-center gap-2 text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{error === "CredentialsSignin" ? "Invalid email or password" : "Authentication failed"}</span>
+                </div>
+            )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                            Email address
-                        </label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500">
-                                <Mail className="h-5 w-5" />
-                            </div>
-                            <input
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="block w-full pl-10 pr-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all sm:text-sm"
-                                placeholder="name@example.com"
-                            />
-                        </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Email address</label>
+                    <div className="relative">
+                        <input
+                            type="email"
+                            required
+                            className="w-full pl-10 pr-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
                     </div>
+                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                            Password
-                        </label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500">
-                                <Lock className="h-5 w-5" />
-                            </div>
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="block w-full pl-10 pr-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all sm:text-sm"
-                                placeholder="••••••••"
-                            />
-                        </div>
+                <div>
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Password</label>
+                    <div className="relative">
+                        <input
+                            type="password"
+                            required
+                            className="w-full pl-10 pr-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
                     </div>
+                </div>
 
+                <div className="pt-2">
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                                Signing in...
-                            </>
-                        ) : (
-                            "Sign in"
-                        )}
+                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign in"}
                     </button>
-                </form>
-
-                <div className="mt-6 border-t border-neutral-200 dark:border-neutral-800 pt-6">
-                    <p className="text-center text-sm text-neutral-600 dark:text-neutral-400">
-                        Don&apos;t have an account?{" "}
-                        <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-                            Sign up
-                        </Link>
-                    </p>
                 </div>
-            </div>
+            </form>
 
-            <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
-                Secure authentication powered by NextAuth.js
-            </p>
+            <div className="mt-6 text-center text-sm text-neutral-500 dark:text-neutral-400">
+                Don&apos;t have an account?{" "}
+                <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                    Sign up
+                </Link>
+            </div>
         </div>
     )
 }
@@ -150,7 +110,7 @@ function LoginForm() {
 export default function LoginPage() {
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col items-center justify-center p-4">
-            <Suspense>
+            <Suspense fallback={<div className="animate-pulse bg-white dark:bg-neutral-900 w-full max-w-md h-96 rounded-2xl"></div>}>
                 <LoginForm />
             </Suspense>
         </div>

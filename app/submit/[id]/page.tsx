@@ -37,7 +37,13 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
 
         // Fix serialization issues for Client Component
         // Mongoose objects (like Buffer from UUIDs, ObjectIds) need to be plain JSON
-        const serializedForm = JSON.parse(JSON.stringify(form))
+        const plainForm = JSON.parse(JSON.stringify(form))
+        const serializedForm = {
+            ...plainForm,
+            // Explicitly add 'id' as a string because the wrapper uses 'form.id'
+            // and the virtual getter is lost in the lean()/stringify process
+            id: plainForm._id
+        }
 
         return (
             <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 sm:p-8">

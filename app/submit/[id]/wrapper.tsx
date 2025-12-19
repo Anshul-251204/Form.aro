@@ -26,9 +26,9 @@ export function SubmitFormWrapper({ form }: { form: any }) {
         }
     }
 
-    // Map prisma fields to FormField type expected by renderer
+    // Map prisma/mongoose fields to FormField type expected by renderer
     const fields = form.fields.map((f: any) => ({
-        id: f.id,
+        _id: f._id || f.id, // Map _id (Mongoose) or id to _id (FormRenderer)
         type: f.type,
         label: f.label,
         required: f.required,

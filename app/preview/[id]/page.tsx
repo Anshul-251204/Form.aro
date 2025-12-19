@@ -14,8 +14,6 @@ export default function PreviewPage() {
 
     if (!mounted) return null
 
-    console.log(fields)
-
     return (
         <div className="min-h-screen bg-blue-50/50 dark:bg-neutral-950 py-8">
             <FormRenderer

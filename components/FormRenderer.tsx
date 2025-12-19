@@ -36,7 +36,7 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
         let hasErrors = false
 
         fields.forEach(field => {
-            const value = formData[field.id]
+            const value = formData[field._id]
             const validation = field.validation || {}
             // Backward compatibility
             const required = validation.required ?? field.required ?? false
@@ -48,7 +48,7 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
 
             // Required check
             if (required && !value) {
-                newErrors[field.id] = `${field.label} is required`
+                newErrors[field._id] = `${field.label} is required`
                 hasErrors = true
                 return
             }
@@ -58,7 +58,7 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
                 if (field.type === 'email') {
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
                     if (!emailRegex.test(value)) {
-                        newErrors[field.id] = `Please enter a valid email address`
+                        newErrors[field._id] = `Please enter a valid email address`
                         hasErrors = true
                     }
                 }
@@ -67,11 +67,11 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
                 if (field.type === 'number') {
                     const numVal = Number(value)
                     if (min !== undefined && numVal < min) {
-                        newErrors[field.id] = `Value must be at least ${min}`
+                        newErrors[field._id] = `Value must be at least ${min}`
                         hasErrors = true
                     }
                     if (max !== undefined && numVal > max) {
-                        newErrors[field.id] = `Value must be at most ${max}`
+                        newErrors[field._id] = `Value must be at most ${max}`
                         hasErrors = true
                     }
                 }
@@ -79,11 +79,11 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
                 // Text length validation
                 if (field.type === 'text' || field.type === 'long_text') {
                     if (min !== undefined && value.length < min) {
-                        newErrors[field.id] = `Must be at least ${min} characters`
+                        newErrors[field._id] = `Must be at least ${min} characters`
                         hasErrors = true
                     }
                     if (max !== undefined && value.length > max) {
-                        newErrors[field.id] = `Must be at most ${max} characters`
+                        newErrors[field._id] = `Must be at most ${max} characters`
                         hasErrors = true
                     }
                 }
@@ -145,7 +145,7 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
 
             <div className="space-y-4">
                 {fields.map((field) => (
-                    <div key={field.id} className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 p-6">
+                    <div key={field._id} className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 p-6">
                         <label className="block text-base font-medium text-neutral-900 dark:text-white mb-2">
                             {field.label} {(field.validation?.required ?? field.required) && <span className="text-red-500">*</span>}
                         </label>
@@ -155,13 +155,13 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
                                 type={field.type}
                                 className={cn(
                                     "w-full px-3 py-2 rounded-md border bg-white dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-blue-500",
-                                    errors[field.id]
+                                    errors[field._id]
                                         ? "border-red-500 focus:ring-red-500"
                                         : "border-neutral-200 dark:border-neutral-800"
                                 )}
                                 placeholder="Your answer"
-                                value={formData[field.id] || ''}
-                                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                value={formData[field._id] || ''}
+                                onChange={(e) => handleInputChange(field._id, e.target.value)}
                             />
                         )}
 
@@ -170,8 +170,8 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
                                 className="w-full px-3 py-2 rounded-md border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Your answer"
                                 rows={3}
-                                value={formData[field.id] || ''}
-                                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                value={formData[field._id] || ''}
+                                onChange={(e) => handleInputChange(field._id, e.target.value)}
                             />
                         )}
 
@@ -181,10 +181,10 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
                                     <label key={i} className="flex items-center gap-3 cursor-pointer">
                                         <input
                                             type="radio"
-                                            name={field.id}
+                                            name={field._id}
                                             className="h-4 w-4 text-blue-600 border-neutral-300 focus:ring-blue-500"
-                                            checked={formData[field.id] === option}
-                                            onChange={() => handleInputChange(field.id, option)}
+                                            checked={formData[field._id] === option}
+                                            onChange={() => handleInputChange(field._id, option)}
                                         />
                                         <span className="text-neutral-700 dark:text-neutral-300">{option}</span>
                                     </label>
@@ -199,13 +199,13 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
                                         <input
                                             type="checkbox"
                                             className="h-4 w-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-                                            checked={(formData[field.id] || []).includes(option)}
+                                            checked={(formData[field._id] || []).includes(option)}
                                             onChange={(e) => {
-                                                const current = formData[field.id] || []
+                                                const current = formData[field._id] || []
                                                 const next = e.target.checked
                                                     ? [...current, option]
                                                     : current.filter((o: string) => o !== option)
-                                                handleInputChange(field.id, next)
+                                                handleInputChange(field._id, next)
                                             }}
                                         />
                                         <span className="text-neutral-700 dark:text-neutral-300">{option}</span>
@@ -217,8 +217,8 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
                         {field.type === 'dropdown' && (
                             <select
                                 className="w-full px-3 py-2 rounded-md border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={formData[field.id] || ''}
-                                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                value={formData[field._id] || ''}
+                                onChange={(e) => handleInputChange(field._id, e.target.value)}
                             >
                                 <option value="">Choose</option>
                                 {field.options?.map((option, i) => (
@@ -231,13 +231,13 @@ export function FormRenderer({ title, description, fields, isPreview = false, on
                             <input
                                 type="date"
                                 className="w-full px-3 py-2 rounded-md border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={formData[field.id] || ''}
-                                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                value={formData[field._id] || ''}
+                                onChange={(e) => handleInputChange(field._id, e.target.value)}
                             />
                         )}
 
-                        {errors[field.id] && (
-                            <p className="text-sm text-red-500 mt-2">{errors[field.id]}</p>
+                        {errors[field._id] && (
+                            <p className="text-sm text-red-500 mt-2">{errors[field._id]}</p>
                         )}
                     </div>
                 ))}

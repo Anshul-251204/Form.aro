@@ -19,7 +19,7 @@ export function SortableField({ field, isSelected, onSelect, onRemove }: Sortabl
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: field.id })
+    } = useSortable({ id: field._id })
 
     const style = {
         transform: CSS.Transform.toString(transform),
