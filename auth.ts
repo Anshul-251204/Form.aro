@@ -1,16 +1,20 @@
 import NextAuth from "next-auth"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
-import { clientPromise } from "@/lib/db"
+import { getMongoClientPromise } from "@/lib/mongodb";
 import { authConfig } from "@/auth.config"
 import Credentials from "next-auth/providers/credentials"
 import { connectDB } from "@/lib/db"
 import User from "@/models/User"
 
-
+const mongoClientPromise = getMongoClientPromise();
+const isDbAvailable = !!mongoClientPromise;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    // 🔑 adapter ONLY if DB is available
+    adapter: isDbAvailable
+    ? MongoDBAdapter(mongoClientPromise!)
+    : undefined,
     ...authConfig,
-    adapter: MongoDBAdapter(clientPromise),
     providers: [
         Credentials({
             name: "Credentials",
