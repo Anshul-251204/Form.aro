@@ -4,16 +4,17 @@ import { useState, Suspense } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Mail, Lock, Loader2, AlertCircle } from "lucide-react"
+import { Mail, Lock, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 function LoginForm() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
     const router = useRouter()
     const searchParams = useSearchParams()
-    const error = searchParams.get("error")
     const { showToast } = useToast()
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -27,8 +28,23 @@ function LoginForm() {
                 redirect: false
             })
 
+            console.log("res", res)
+
             if (res?.error) {
-                showToast("Invalid credentials", "error")
+                let errorMessage = "Invalid credentials"
+
+                if (res.code === "UserNotFound") {
+                    errorMessage = "No account exists with this email"
+                } else if (res.code === "InvalidPassword") {
+                    errorMessage = "Incorrect password"
+                } else if (res.code === "InvalidEmail") {
+                    errorMessage = "Invalid email format"
+                } else {
+                    errorMessage = res.code as string;
+                }
+                setError(errorMessage)
+
+                showToast(errorMessage, "error")
             } else {
                 router.push("/dashboard")
                 showToast("Logged in successfully", "success")
@@ -51,7 +67,7 @@ function LoginForm() {
             {error && (
                 <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-3 rounded-lg flex items-center gap-2 text-sm">
                     <AlertCircle className="h-4 w-4" />
-                    <span>{error === "CredentialsSignin" ? "Invalid email or password" : "Authentication failed"}</span>
+                    <span>{error}</span>
                 </div>
             )}
 
@@ -60,7 +76,7 @@ function LoginForm() {
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Email address</label>
                     <div className="relative">
                         <input
-                            type="email"
+                            type="text"
                             required
                             className="w-full pl-10 pr-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="you@example.com"
@@ -75,14 +91,25 @@ function LoginForm() {
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Password</label>
                     <div className="relative">
                         <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             required
-                            className="w-full pl-10 pr-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className="w-full pl-10 pr-10 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
                         <Lock className="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                        >
+                            {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                            ) : (
+                                <Eye className="h-5 w-5" />
+                            )}
+                        </button>
                     </div>
                 </div>
 

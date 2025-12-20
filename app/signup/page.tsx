@@ -1,15 +1,16 @@
 "use client"
 
 import { useState, Suspense } from "react"
-import { signIn } from "next-auth/react"
+import { registerUser } from "@/actions/register"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Mail, Lock, Loader2, AlertCircle, ArrowLeft } from "lucide-react"
+import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 function SignupForm() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
     const { showToast } = useToast()
@@ -19,19 +20,21 @@ function SignupForm() {
         setIsLoading(true)
 
         try {
-            // For this demo, we use the same credentials provider which creates users if they don't exist
-            // In a real app, you would have a separate signup API endpoint
-            const res = await signIn("credentials", {
-                email,
-                password,
-                redirect: false
-            })
+            const formData = new FormData()
+            formData.append("email", email)
+            formData.append("password", password)
 
-            if (res?.error) {
-                showToast("Registration failed. Please try again.", "error")
+            const result = await registerUser(formData)
+
+            if (result?.error) {
+                // Show first error message
+                const msg = Object.values(result.error).flat()[0] as string
+                showToast(msg || "Registration failed", "error")
+            } else if (result?.msg && result.status !== 201) {
+                showToast(result.msg, "error")
             } else {
-                router.push("/dashboard")
-                showToast("Account created successfully", "success")
+                router.push("/login")
+                showToast("Account created! Please login.", "success")
             }
         } catch (error) {
             console.error(error)
@@ -76,14 +79,25 @@ function SignupForm() {
                     <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Password</label>
                     <div className="relative">
                         <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             required
-                            className="w-full pl-10 pr-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            className="w-full pl-10 pr-10 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
                         <Lock className="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                        >
+                            {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                            ) : (
+                                <Eye className="h-5 w-5" />
+                            )}
+                        </button>
                     </div>
                     <p className="text-xs text-neutral-500 mt-1">Must be at least 8 characters long</p>
                 </div>
