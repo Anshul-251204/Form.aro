@@ -76,7 +76,7 @@ export function Hero() {
                         <div className="space-y-1">
                             <p><span className="text-purple-400">services:</span></p>
                             <p className="pl-4"><span className="text-blue-400">Form.aro:</span></p>
-                            <p className="pl-8"><span className="text-green-400">image:</span> Form.aro:latest</p>
+                            <p className="pl-8"><span className="text-green-400">image:</span> annshulch1755/form-aro</p>
                             <p className="pl-8"><span className="text-green-400">ports:</span></p>
                             <p className="pl-12">- "3000:3000"</p>
                             <p className="pl-8"><span className="text-green-400">environment:</span></p>
@@ -137,9 +137,11 @@ export function Hero() {
 
                         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6 rounded-2xl h-[180px] flex flex-col justify-center">
                             <div className="font-mono text-sm text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-950 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+
                                 <span className="text-blue-600">docker</span> run -d \<br />
                                 &nbsp;&nbsp;-p 3000:3000 \<br />
-                                &nbsp;&nbsp;Form.aro/core
+                                &nbsp;&nbsp;--env-file=./.env.local \<br />
+                                &nbsp;&nbsp; annshulch1755/form-aro
                             </div>
                         </div>
                     </div>
