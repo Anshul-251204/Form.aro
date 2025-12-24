@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Github, Twitter } from "lucide-react"
+import { Github, Linkedin } from "lucide-react"
 import TextLogo from "./TextLogo";
 
 export function Footer() {
@@ -32,18 +32,18 @@ export function Footer() {
                         <h3 className="font-semibold text-neutral-900 dark:text-white mb-4">Resources</h3>
                         <ul className="space-y-2 text-sm text-neutral-500 dark:text-neutral-400">
                             <li><Link href="/docs/self-host" className="hover:text-blue-600 dark:hover:text-blue-400">Documentation</Link></li>
-                            <li><a href="https://github.com/yourusername/Form.aro" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 dark:hover:text-blue-400">GitHub</a></li>
+                            <li><a href="https://github.com/Anshul-251204" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 dark:hover:text-blue-400">GitHub</a></li>
                         </ul>
                     </div>
 
                     <div>
                         <h3 className="font-semibold text-neutral-900 dark:text-white mb-4">Connect</h3>
                         <div className="flex space-x-4">
-                            <a href="https://github.com/yourusername/Form.aro" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
+                            <a href="https://github.com/Anshul-251204" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
                                 <Github className="h-5 w-5" />
                             </a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
-                                <Twitter className="h-5 w-5" />
+                            <a href="https://www.linkedin.com/in/anshul25/" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
+                                <Linkedin className="h-5 w-5"/>
                             </a>
                         </div>
                     </div>
@@ -56,3 +56,4 @@ export function Footer() {
         </footer>
     )
 }
+
