@@ -6,6 +6,10 @@ const UserSchema = new mongoose.Schema({
     password: { type: String, select: false },
     emailVerified: Date,
     image: String,
+    aiDetails: {
+        count: { type: Number, default: 0 },
+        lastUsed: { type: Date }
+    }
 }, { timestamps: true });
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);

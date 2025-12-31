@@ -18,6 +18,12 @@ export const authConfig = {
             const isLoggedIn = !!auth?.user
             const isOnDashboard = nextUrl.pathname.startsWith('/dashboard')
             const isOnBuilder = nextUrl.pathname.startsWith('/builder')
+            const isApiRoute = nextUrl.pathname.startsWith('/api')
+
+            // Don't apply redirect logic to API routes - they handle auth internally
+            if (isApiRoute) {
+                return true
+            }
 
             if (isOnDashboard || isOnBuilder) {
                 if (isLoggedIn) return true

@@ -12,7 +12,7 @@ const mongoClientPromise = getMongoClientPromise();
 const isDbAvailable = !!mongoClientPromise;
 
 const loginSchema = z.object({
-    email: z.email({
+    email: z.string().email({
         message: "Invalid email"
     }),
     password: z.string().min(6, {

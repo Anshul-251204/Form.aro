@@ -4,7 +4,8 @@ import { FormBuilder } from "@/components/form-builder/FormBuilder"
 import { useFormEditorStore } from "@/store/form-editor"
 import { use, useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowLeft, Globe, Lock, Copy, Check } from "lucide-react"
+import { AiBuilderModal } from "@/components/AiBuilderModal"
+import { ArrowLeft, Globe, Lock, Copy, Check, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
@@ -13,9 +14,12 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
     const [isSaving, setIsSaving] = useState(false)
     const [isPublished, setIsPublished] = useState(false)
     const [copied, setCopied] = useState(false)
+    const [showAiModal, setShowAiModal] = useState(false)
     const { fields, setFields, title, setTitle, description, setDescription } = useFormEditorStore()
     const router = useRouter()
     const { showToast } = useToast()
+
+    const enableAiBuilder = process.env.NEXT_PUBLIC_ENABLE_AI_BUILDER === 'true'
 
     useEffect(() => {
         // If creating a new form, skip fetch and init default state
@@ -179,6 +183,18 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
+                    {enableAiBuilder && !isPublished && (
+                        <button
+                            onClick={() => setShowAiModal(true)}
+                            className="px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:text-purple-400 dark:hover:bg-purple-900/30 rounded-lg transition-colors flex items-center gap-2"
+                        >
+                            <Sparkles className="h-4 w-4" />
+                            <span className="hidden sm:inline">
+                                {fields.length > 0 ? "Improve with AI" : "Generate with AI"}
+                            </span>
+                        </button>
+                    )}
+
                     {isPublished && id !== "new" && (
                         <button
                             onClick={handleCopyLink}
@@ -208,15 +224,37 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                     )}
 
                     <button
-                        onClick={isPublished ? handleUpdate : handlePublish}
+                        onClick={async () => {
+                            setIsSaving(true)
+                            try {
+                                await saveForm()
+                                showToast("Form saved successfully", "success")
+                            } catch (error) {
+                                console.error('Failed to save', error)
+                                showToast("Failed to save form", "error")
+                            } finally {
+                                setIsSaving(false)
+                            }
+                        }}
                         disabled={isSaving}
-                        className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 min-w-[100px]"
+                        className="px-4 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors disabled:opacity-50"
                     >
-                        {isSaving ? 'Saving...' : (isPublished ? 'Update' : 'Publish')}
+                        Save
                     </button>
+
+                    {!isPublished && (
+                        <button
+                            onClick={handlePublish}
+                            disabled={isSaving}
+                            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 min-w-[100px]"
+                        >
+                            {isSaving ? 'Publishing...' : 'Publish'}
+                        </button>
+                    )}
                 </div>
             </header>
             <FormBuilder />
+            {showAiModal && <AiBuilderModal onClose={() => setShowAiModal(false)} />}
         </div>
     )
 }
