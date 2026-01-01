@@ -14,7 +14,6 @@ function LoginForm() {
     const [error, setError] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const router = useRouter()
-    const searchParams = useSearchParams()
     const { showToast } = useToast()
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -28,13 +27,9 @@ function LoginForm() {
                 redirect: false,
             })
             console.log("res", res)
-            if(!res?.error){
-                setTimeout(()=>{
-                    router.replace("/dashboard")
-                },200)
-                showToast("Logged in successfully", "success")
+            if(!res.error){
+                router.push("/dashboard")
             }
-
             if (res?.error) {
                 let errorMessage = "Invalid credentials"
 
