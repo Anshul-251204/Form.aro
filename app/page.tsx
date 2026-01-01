@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, BarChart3, Code2, Layout, Lock, Server, Zap } from "lucide-react"
+import { ArrowRight, BarChart3, Code2, Layout, Lock, Server, Zap, Sparkles, Wand2, Bot } from "lucide-react"
 import { Footer } from "@/components/Footer"
 import FormAroLogo from "@/components/TextLogo"
 import { Hero } from "@/components/Hero"
@@ -14,7 +14,7 @@ export default function LandingPage() {
             <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
               F
             </div>
-           
+
 
             <span className="font-bold text-xl text-neutral-900 dark:text-white"><FormAroLogo /> </span>
           </div>
@@ -37,8 +37,65 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8">
-       
-        <Hero/>
+
+        <Hero />
+      </section>
+
+      {/* AI Features Highlight */}
+      <section className="py-20 bg-linear-to-b from-purple-50 to-white dark:from-purple-900/10 dark:to-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-sm font-medium mb-4">
+              <Sparkles className="h-4 w-4" />
+              <span>New: AI Power</span>
+            </div>
+            <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-4">Build Faster with Artificial Intelligence</h2>
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-2xl mx-auto">
+              Skip the manual work. Let our advanced AI generate comprehensive forms, surveys, and quizzes from a simple description.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white dark:bg-neutral-900 p-8 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Bot className="h-32 w-32 text-purple-600" />
+              </div>
+              <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-6 text-purple-600 dark:text-purple-400">
+                <Bot className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-3">Text to Form</h3>
+              <p className="text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                "Create a customer feedback survey." Just type your idea, and watch the AI build a complete form with relevant fields, validations, and logic in seconds.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-neutral-900 p-8 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 relative overflow-hidden group hover:border-pink-500/50 transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Wand2 className="h-32 w-32 text-pink-600" />
+              </div>
+              <div className="h-12 w-12 bg-pink-100 dark:bg-pink-900/30 rounded-xl flex items-center justify-center mb-6 text-pink-600 dark:text-pink-400">
+                <Wand2 className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-3">Smart Refinement</h3>
+              <p className="text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                Already have a form? The AI can analyze it and suggest missing questions, better option lists, or improved structure to maximize completion rates.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-neutral-900 p-8 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 relative overflow-hidden group hover:border-blue-500/50 transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Sparkles className="h-32 w-32 text-blue-600" />
+              </div>
+              <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-3">One-Click Polish</h3>
+              <p className="text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                Instantly fix typos, standardize labels, and ensure your form looks professional with a single click of the "Improve" button.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Features Grid */}
