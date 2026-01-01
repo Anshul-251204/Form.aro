@@ -27,8 +27,11 @@ function LoginForm() {
                 password,
                 redirect: false,
             })
+            console.log("res", res)
             if(!res?.error){
-                router.replace("/dashboard")
+                setTimeout(()=>{
+                    router.replace("/dashboard")
+                },200)
                 showToast("Logged in successfully", "success")
             }
 
@@ -135,9 +138,7 @@ function LoginForm() {
 export default function LoginPage() {
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col items-center justify-center p-4">
-            <Suspense fallback={<div className="animate-pulse bg-white dark:bg-neutral-900 w-full max-w-md h-96 rounded-2xl"></div>}>
                 <LoginForm />
-            </Suspense>
         </div>
     )
 }
