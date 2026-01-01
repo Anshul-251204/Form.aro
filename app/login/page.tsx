@@ -46,6 +46,7 @@ function LoginForm() {
 
                 showToast(errorMessage, "error")
             } else {
+                router.refresh()
                 router.push("/dashboard")
                 showToast("Logged in successfully", "success")
             }
