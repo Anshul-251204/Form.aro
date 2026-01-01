@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, Suspense } from "react"
+import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Mail, Lock, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react"
+import { Mail, Lock, Loader2, AlertCircle, Eye, EyeOff, LogIn } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
-function LoginForm() {
+export default function SignInPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -19,41 +19,34 @@ function LoginForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
+        setError("")
 
         try {
+            console.log("Attempting sign in...")
             const res = await signIn("credentials", {
                 email,
                 password,
                 redirect: false,
             })
-            console.log("Login response:", res)
 
-            if (!res) {
-                console.error("No response from signIn")
-                return
-            }
+            console.log("Sign in response:", res)
+
             if (res?.error) {
                 let errorMessage = "Invalid credentials"
+                if (res.code === "UserNotFound") errorMessage = "No account exists with this email"
+                else if (res.code === "InvalidPassword") errorMessage = "Incorrect password"
 
-                if (res.code === "UserNotFound") {
-                    errorMessage = "No account exists with this email"
-                } else if (res.code === "InvalidPassword") {
-                    errorMessage = "Incorrect password"
-                } else if (res.code === "InvalidEmail") {
-                    errorMessage = "Invalid email format"
-                } else {
-                    errorMessage = res.code as string;
-                }
                 setError(errorMessage)
                 showToast(errorMessage, "error")
             } else {
-                console.log("Login successful, refreshing and redirecting...")
+                console.log("Success! Refreshing and redirecting...")
                 router.refresh()
                 router.push("/dashboard")
-                showToast("Logged in successfully", "success")
+                showToast("Signed in successfully", "success")
             }
         } catch (error) {
-            console.error(error)
+            console.error("Sign in error:", error)
+            setError("Something went wrong. Please try again.")
             showToast("Something went wrong", "error")
         } finally {
             setIsLoading(false)
@@ -61,86 +54,79 @@ function LoginForm() {
     }
 
     return (
-        <div className="bg-white dark:bg-neutral-900 p-8 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 w-full max-w-md">
-            <div className="mb-8 text-center">
-                <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Welcome back</h1>
-                <p className="text-neutral-500 dark:text-neutral-400">Sign in to manage your forms</p>
-            </div>
-
-            {error && (
-                <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-3 rounded-lg flex items-center gap-2 text-sm">
-                    <AlertCircle className="h-4 w-4" />
-                    <span>{error}</span>
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Email address</label>
-                    <div className="relative">
-                        <input
-                            type="text"
-                            required
-                            className="w-full pl-10 pr-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                            placeholder="you@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
+        <div className="min-h-screen bg-gray-50 dark:bg-neutral-950 flex flex-col items-center justify-center p-4">
+            <div className="bg-white dark:bg-neutral-900 p-8 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 w-full max-w-md">
+                <div className="mb-8 text-center">
+                    <div className="h-12 w-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <LogIn className="h-6 w-6" />
                     </div>
+                    <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Welcome Back</h1>
+                    <p className="text-neutral-500 dark:text-neutral-400">Sign in to your account</p>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Password</label>
-                    <div className="relative">
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            required
-                            className="w-full pl-10 pr-10 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
+                {error && (
+                    <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-3 rounded-lg flex items-center gap-2 text-sm">
+                        <AlertCircle className="h-4 w-4" />
+                        <span>{error}</span>
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Email address</label>
+                        <div className="relative">
+                            <input
+                                type="email"
+                                required
+                                className="w-full pl-10 pr-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="you@example.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                            <Mail className="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">Password</label>
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                required
+                                className="w-full pl-10 pr-10 py-2 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <Lock className="absolute left-3 top-2.5 h-5 w-5 text-neutral-400" />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                            >
+                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="pt-2">
                         <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            {showPassword ? (
-                                <EyeOff className="h-5 w-5" />
-                            ) : (
-                                <Eye className="h-5 w-5" />
-                            )}
+                            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
                         </button>
                     </div>
-                </div>
+                </form>
 
-                <div className="pt-2">
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign in"}
-                    </button>
+                <div className="mt-8 pt-6 border-t border-neutral-100 dark:border-neutral-800 text-center text-sm text-neutral-500 dark:text-neutral-400">
+                    Don&apos;t have an account?{" "}
+                    <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                        Create account
+                    </Link>
                 </div>
-            </form>
-
-            <div className="mt-6 text-center text-sm text-neutral-500 dark:text-neutral-400">
-                Don&apos;t have an account?{" "}
-                <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
-                    Sign up
-                </Link>
             </div>
-        </div>
-    )
-}
-
-export default function LoginPage() {
-    return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col items-center justify-center p-4">
-            <LoginForm />
         </div>
     )
 }
