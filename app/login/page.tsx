@@ -27,9 +27,6 @@ function LoginForm() {
                 redirect: false,
             })
             console.log("res", res)
-            if(!res.error){
-                router.push("/dashboard")
-            }
             if (res?.error) {
                 let errorMessage = "Invalid credentials"
 
@@ -44,7 +41,11 @@ function LoginForm() {
                 }
                 setError(errorMessage)
                 showToast(errorMessage, "error")
-            } 
+            } else {
+                router.refresh()
+                router.push("/dashboard")
+                showToast("Logged in successfully", "success")
+            }
         } catch (error) {
             console.error(error)
             showToast("Something went wrong", "error")
@@ -133,7 +134,7 @@ function LoginForm() {
 export default function LoginPage() {
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col items-center justify-center p-4">
-                <LoginForm />
+            <LoginForm />
         </div>
     )
 }
