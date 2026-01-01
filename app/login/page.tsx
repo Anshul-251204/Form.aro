@@ -26,7 +26,12 @@ function LoginForm() {
                 password,
                 redirect: false,
             })
-            console.log("res", res)
+            console.log("Login response:", res)
+
+            if (!res) {
+                console.error("No response from signIn")
+                return
+            }
             if (res?.error) {
                 let errorMessage = "Invalid credentials"
 
@@ -42,6 +47,7 @@ function LoginForm() {
                 setError(errorMessage)
                 showToast(errorMessage, "error")
             } else {
+                console.log("Login successful, refreshing and redirecting...")
                 router.refresh()
                 router.push("/dashboard")
                 showToast("Logged in successfully", "success")
