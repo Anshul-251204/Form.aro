@@ -25,10 +25,12 @@ function LoginForm() {
             const res = await signIn("credentials", {
                 email,
                 password,
-                redirect: false
+                redirect: false,
             })
-
-            console.log("res", res)
+            if(!res?.error){
+                router.replace("/dashboard")
+                showToast("Logged in successfully", "success")
+            }
 
             if (res?.error) {
                 let errorMessage = "Invalid credentials"
@@ -43,13 +45,8 @@ function LoginForm() {
                     errorMessage = res.code as string;
                 }
                 setError(errorMessage)
-
                 showToast(errorMessage, "error")
-            } else {
-                router.refresh()
-                router.push("/dashboard")
-                showToast("Logged in successfully", "success")
-            }
+            } 
         } catch (error) {
             console.error(error)
             showToast("Something went wrong", "error")
