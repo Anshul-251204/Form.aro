@@ -3,12 +3,13 @@ import { connectDB } from "@/lib/db"
 import Form from "@/models/Form"
 import Submission from "@/models/Submission"
 import { SubmissionsView } from "./submissions-view"
-import { auth } from "@/auth"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/authOptions"
 
 export const dynamic = 'force-dynamic'
 
 export default async function SubmissionsPage({ params }: { params: Promise<{ id: string }> }) {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user) {
         return notFound()
     }

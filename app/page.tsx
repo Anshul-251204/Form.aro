@@ -4,7 +4,17 @@ import { Footer } from "@/components/Footer"
 import FormAroLogo from "@/components/TextLogo"
 import { Hero } from "@/components/Hero"
 
-export default function LandingPage() {
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/authOptions"
+import { redirect } from "next/navigation"
+
+export default async function LandingPage() {
+  const session = await getServerSession(authOptions)
+
+  if (session) {
+    redirect("/dashboard")
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950">
       {/* Navigation */}

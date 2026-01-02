@@ -2,7 +2,8 @@
 import { NextResponse } from 'next/server';
 import { Agent, run } from '@openai/agents';
 import { z } from 'zod';
-import { auth } from '@/auth';
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/authOptions"
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import { getEnhancePrompt, SYSTEM_PROMPT } from './prompt';
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });
         }
 
-        const session = await auth();
+        const session = await getServerSession(authOptions)
         if (!session || !session.user) {
             console.error('Unauthorized: No session or user');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -101,21 +102,21 @@ export async function POST(req: Request) {
 
         if (currentForm) {
             console.log('Improving existing form:', currentForm.currentTitle);
-//             instructions = `You are an AI assistant helping users IMPROVE an existing form.
-// Current Form Context:
-// Title: ${currentForm.currentTitle}
-// Description: ${currentForm.currentDescription}
-// Fields: ${JSON.stringify(currentForm.currentFields)}
+            //             instructions = `You are an AI assistant helping users IMPROVE an existing form.
+            // Current Form Context:
+            // Title: ${currentForm.currentTitle}
+            // Description: ${currentForm.currentDescription}
+            // Fields: ${JSON.stringify(currentForm.currentFields)}
 
-// User Request: ${prompt}
+            // User Request: ${prompt}
 
-// Based on the user's request and the current form, generate an IMPROVED version of the form.
-// 1. MODIFY, ADD, or REMOVE fields as requested.
-// 2. KEEP existing fields unless explicitly asked to remove or change them.
-// 3. PRESERVE the existing _id's for fields that are unchanged or slightly modified.
-// 4. Generate NEW unique _id's for NEW fields.
-// 5. Return the COMPLETE form structure (merged result).`;
-            instructions = getEnhancePrompt(currentForm,prompt);
+            // Based on the user's request and the current form, generate an IMPROVED version of the form.
+            // 1. MODIFY, ADD, or REMOVE fields as requested.
+            // 2. KEEP existing fields unless explicitly asked to remove or change them.
+            // 3. PRESERVE the existing _id's for fields that are unchanged or slightly modified.
+            // 4. Generate NEW unique _id's for NEW fields.
+            // 5. Return the COMPLETE form structure (merged result).`;
+            instructions = getEnhancePrompt(currentForm, prompt);
         }
 
         // Create a temporary agent with dynamic instructions if needed, or use the base agent
