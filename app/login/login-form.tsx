@@ -28,18 +28,17 @@ export function LoginForm() {
                 password,
                 redirect: false,
             })
-
-            console.log("Sign in response:", res)
+            console.log("Sign in resp:", res)
 
             if (res?.error) {
                 const errorMessage = "Invalid credentials"
                 setError(errorMessage)
                 showToast(errorMessage, "error")
             } else {
-                console.log("Success! Refreshing and redirecting...")
-                router.refresh()
-                router.push("/dashboard")
+                console.log("Success! Redirecting...")
                 showToast("Signed in successfully", "success")
+                // Use window.location.href to force a full page reload and ensure the session cookie is recognized
+                window.location.href = "/dashboard"
             }
         } catch (error) {
             console.error("Sign in error:", error)
