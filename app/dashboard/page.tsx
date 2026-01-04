@@ -102,25 +102,7 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-            <header className="h-16 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 flex items-center px-6 justify-between">
-                <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-                        F
-                    </div>
-                    {/* <span className="font-bold text-xl text-neutral-900 dark:text-white">FormHost</span> */}
-                    <FormAroLogo/>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => signOut({ callbackUrl: "/" })}
-                        className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
-                    >
-                        Sign out
-                    </button>
-                </div>
-            </header>
-
-            <div className="max-w-6xl mx-auto p-8">
+            <div className="max-w-6xl mx-auto p-8 px-4">
                 <div className="flex items-center justify-between mb-8">
                     <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Your Forms</h1>
                     <Link href="/builder/new">

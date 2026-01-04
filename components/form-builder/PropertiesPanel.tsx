@@ -14,7 +14,7 @@ export function PropertiesPanel() {
     }
 
     return (
-        <div className="p-4 space-y-6 h-full overflow-y-auto">
+        <div className="p-4 pt-12 space-y-6 h-full overflow-y-auto">
             <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-neutral-900 dark:text-white uppercase tracking-wider">
                     Properties

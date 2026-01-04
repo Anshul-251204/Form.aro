@@ -5,7 +5,7 @@ import { useFormEditorStore } from "@/store/form-editor"
 import { use, useState, useEffect } from "react"
 import Link from "next/link"
 import { AiBuilderModal } from "@/components/AiBuilderModal"
-import { ArrowLeft, Globe, Lock, Copy, Check, Sparkles } from "lucide-react"
+import { ArrowLeft, Globe, Lock, Copy, Check, Sparkles, Menu, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
@@ -15,6 +15,7 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
     const [isPublished, setIsPublished] = useState(false)
     const [copied, setCopied] = useState(false)
     const [showAiModal, setShowAiModal] = useState(false)
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
     const { fields, setFields, title, setTitle, description, setDescription } = useFormEditorStore()
     const router = useRouter()
     const { showToast } = useToast()
@@ -156,8 +157,8 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
 
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-            <header className="h-16 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 flex items-center px-6 justify-between">
-                <div className="flex items-center gap-4">
+            <header className="h-16 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 flex items-center px-4 md:px-6 justify-between relative z-50">
+                <div className="flex items-center gap-2 md:gap-4">
                     <Link
                         href="/dashboard"
                         className="p-2 -ml-2 text-neutral-500 hover:text-neutral-900 dark:hover:text-white rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
@@ -165,33 +166,44 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Link>
-                    <div className="h-8 w-1 bg-neutral-200 dark:bg-neutral-800 rounded-full" />
+                    <div className="hidden md:block h-8 w-1 bg-neutral-200 dark:bg-neutral-800 rounded-full" />
                     <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+                        <div className="hidden md:flex h-8 w-8 bg-blue-600 rounded-lg items-center justify-center text-white font-bold">
                             F
                         </div>
-                        <span className="font-bold text-lg text-neutral-900 dark:text-white">Builder</span>
+                        <span className="font-bold text-lg text-neutral-900 dark:text-white hidden sm:block">Builder</span>
                         {isPublished ? (
                             <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-medium flex items-center gap-1">
-                                <Globe className="h-3 w-3" /> Published
+                                <Globe className="h-3 w-3" /> <span className="hidden xs:inline">Published</span>
                             </span>
                         ) : (
                             <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400 text-xs font-medium flex items-center gap-1">
-                                <Lock className="h-3 w-3" /> Draft
+                                <Lock className="h-3 w-3" /> <span className="hidden xs:inline">Draft</span>
                             </span>
                         )}
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
+
+                {/* Mobile Menu Toggle */}
+                <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="md:hidden p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800 rounded-lg"
+                >
+                    {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
+
+                {/* Desktop Actions */}
+                <div className="hidden md:flex items-center gap-4">
                     {enableAiBuilder && !isPublished && (
                         <button
                             onClick={() => setShowAiModal(true)}
                             className="px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:text-purple-400 dark:hover:bg-purple-900/30 rounded-lg transition-colors flex items-center gap-2"
                         >
                             <Sparkles className="h-4 w-4" />
-                            <span className="hidden sm:inline">
+                            <span className="hidden lg:inline">
                                 {fields.length > 0 ? "Improve with AI" : "Generate with AI"}
                             </span>
+                            <span className="lg:hidden">AI</span>
                         </button>
                     )}
 
@@ -202,7 +214,7 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                             title="Copy Public Link"
                         >
                             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                            <span className="hidden sm:inline">{copied ? "Copied" : "Copy Link"}</span>
+                            <span>{copied ? "Copied" : "Copy Link"}</span>
                         </button>
                     )}
 
@@ -252,6 +264,95 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                         </button>
                     )}
                 </div>
+
+                {/* Mobile Menu Dropdown */}
+                {isMenuOpen && (
+                    <div className="absolute top-16 left-0 right-0 bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800 p-4 flex flex-col gap-2 md:hidden shadow-lg animate-in slide-in-from-top-2">
+                        {enableAiBuilder && !isPublished && (
+                            <button
+                                onClick={() => {
+                                    setShowAiModal(true)
+                                    setIsMenuOpen(false)
+                                }}
+                                className="w-full px-4 py-3 text-left text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:text-purple-400 rounded-lg flex items-center gap-2"
+                            >
+                                <Sparkles className="h-4 w-4" />
+                                {fields.length > 0 ? "Improve with AI" : "Generate with AI"}
+                            </button>
+                        )}
+
+                        <button
+                            onClick={() => {
+                                handlePreview()
+                                setIsMenuOpen(false)
+                            }}
+                            className="w-full px-4 py-3 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900 rounded-lg flex items-center gap-2"
+                        >
+                            <span className="flex-1">Preview Form</span>
+                        </button>
+
+                        {isPublished && id !== "new" && (
+                            <button
+                                onClick={() => {
+                                    handleCopyLink()
+                                    // Don't close immediately to show state
+                                }}
+                                className="w-full px-4 py-3 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900 rounded-lg flex items-center gap-2"
+                            >
+                                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                {copied ? "Link Copied" : "Copy Public Link"}
+                            </button>
+                        )}
+
+                        <div className="h-px bg-neutral-200 dark:bg-neutral-800 my-1" />
+
+                        <button
+                            onClick={async () => {
+                                setIsSaving(true)
+                                try {
+                                    await saveForm()
+                                    showToast("Form saved successfully", "success")
+                                    setIsMenuOpen(false)
+                                } catch (error) {
+                                    console.error('Failed to save', error)
+                                    showToast("Failed to save form", "error")
+                                } finally {
+                                    setIsSaving(false)
+                                }
+                            }}
+                            disabled={isSaving}
+                            className="w-full px-4 py-3 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:text-neutral-400 dark:hover:bg-neutral-900 rounded-lg flex items-center gap-2"
+                        >
+                            Save Draft
+                        </button>
+
+                        {isPublished && id !== "new" && (
+                            <button
+                                onClick={() => {
+                                    handleUnpublish()
+                                    setIsMenuOpen(false)
+                                }}
+                                disabled={isSaving}
+                                className="w-full px-4 py-3 text-left text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg"
+                            >
+                                Unpublish Form
+                            </button>
+                        )}
+
+                        {!isPublished && (
+                            <button
+                                onClick={() => {
+                                    handlePublish()
+                                    setIsMenuOpen(false)
+                                }}
+                                disabled={isSaving}
+                                className="w-full px-4 py-3 text-center text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                            >
+                                {isSaving ? 'Publishing...' : 'Publish Form'}
+                            </button>
+                        )}
+                    </div>
+                )}
             </header>
             <FormBuilder />
             {showAiModal && <AiBuilderModal onClose={() => setShowAiModal(false)} />}

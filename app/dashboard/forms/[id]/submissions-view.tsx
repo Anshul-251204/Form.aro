@@ -62,7 +62,7 @@ export function SubmissionsView({ formId, formTitle, fields, submissions, views 
     const completionRate = views > 0 ? Math.round((totalResponses / views) * 100) : 0
 
     return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-8">
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-8 px-4">
             <div className="max-w-6xl mx-auto">
                 <div className="mb-8">
                     <Link
