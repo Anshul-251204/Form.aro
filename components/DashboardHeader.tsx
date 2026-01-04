@@ -50,7 +50,7 @@ export function DashboardHeader() {
                             className="flex items-center gap-2 p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                         >
                             <div className="h-8 w-8 bg-neutral-200 dark:bg-neutral-800 rounded-full flex items-center justify-center text-neutral-600 dark:text-neutral-400 font-medium">
-                                {session?.user?.email?.[0].toUpperCase() || <User className="h-4 w-4" />}
+                                {session?.user?.image ? <img src={session?.user?.image} alt="User" className="h-8 w-8 rounded-full" /> : session?.user?.email?.[0].toUpperCase() || <User className="h-4 w-4" />}
                             </div>
                         </button>
 

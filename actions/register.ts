@@ -8,15 +8,18 @@ import { z } from "zod";
 const registerSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
     password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
+    name: z.string().min(3, { message: "Name must be at least 3 characters long" }),
 });
 
 export async function registerUser(formData: FormData) {
     const email = formData.get("email");
     const password = formData.get("password");
+    const name = formData.get("name");
 
     const validatedFields = registerSchema.safeParse({
         email,
         password,
+        name
     });
 
     if (!validatedFields.success) {
@@ -25,7 +28,7 @@ export async function registerUser(formData: FormData) {
         };
     }
 
-    const { email: validEmail, password: validPassword } = validatedFields.data;
+    const { email: validEmail, password: validPassword, name: validName } = validatedFields.data;
 
     try {
         await connectDB();
@@ -40,7 +43,7 @@ export async function registerUser(formData: FormData) {
 
         await User.create({
             email: validEmail,
-            name: validEmail.split("@")[0],
+            name: validName || validEmail.split("@")[0],
             password: hashedPassword,
         });
 
