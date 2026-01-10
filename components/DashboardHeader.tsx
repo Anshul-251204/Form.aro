@@ -4,13 +4,42 @@ import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
 import { Layout, LogOut, Plus, Settings, User, Zap } from "lucide-react"
 import FormAroLogo from "@/components/TextLogo"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { PricingModal } from "./PricingModal"
 
 export function DashboardHeader() {
     const { data: session } = useSession()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isPricingOpen, setIsPricingOpen] = useState(false)
+    const [credits, setCredits] = useState<{ count: number; limit: number } | null>(null)
+
+    const fetchCredits = async () => {
+        try {
+            const res = await fetch("/api/user/credits")
+            if (res.ok) {
+                const data = await res.json()
+                setCredits(data)
+            }
+        } catch (error) {
+            console.error("Failed to fetch credits", error)
+        }
+    }
+
+    useEffect(() => {
+        if (session?.user) {
+            fetchCredits()
+            // Optional: Poll every 30 seconds to keep updated with background usage
+            const interval = setInterval(fetchCredits, 30000)
+            return () => clearInterval(interval)
+        }
+    }, [session])
+
+    // Update credits when modal closes (potentially after purchase)
+    useEffect(() => {
+        if (!isPricingOpen) {
+            fetchCredits()
+        }
+    }, [isPricingOpen])
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md">
@@ -33,6 +62,15 @@ export function DashboardHeader() {
                         >
                             Forms
                         </Link> */}
+                        <div className="flex flex-col items-end mr-2">
+                            <div className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+                                {credits ? credits.limit - credits.count : (session?.user?.aiDetails?.limit ? session.user.aiDetails.limit - (session.user.aiDetails.count || 0) : 0)} Credits Left
+                            </div>
+                            <div className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                                {credits ? credits.count : (session?.user?.aiDetails?.count || 0)} / {credits ? credits.limit : (session?.user?.aiDetails?.limit || 3)} used
+                            </div>
+                        </div>
+
                         <button
                             onClick={() => setIsPricingOpen(true)}
                             className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 rounded-full text-xs font-semibold transition-colors"
@@ -72,6 +110,9 @@ export function DashboardHeader() {
                                     <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-800">
                                         <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
                                             {session?.user?.email}
+                                        </p>
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                                            {session?.user?.aiDetails?.limit ? session.user.aiDetails.limit - (session.user.aiDetails.count || 0) : 0} Credits Left
                                         </p>
                                     </div>
 

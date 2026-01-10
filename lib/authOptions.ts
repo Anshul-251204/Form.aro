@@ -88,6 +88,22 @@ export const authOptions: NextAuthOptions = {
             if (session.user && token.sub) {
                 session.user.id = token.sub
             }
+            // Fetch aiDetails to keep session in sync with latest DB state
+            if (token.sub) {
+                try {
+                    await connectDB();
+                    const u = await User.findById(token.sub);
+                    console.log(u.aiDetails.limit, "limit")
+                    if (u) {
+                        session.user.aiDetails = {
+                            count: u.aiDetails?.count || 0,
+                            limit: u.aiDetails?.limit || 3
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error fetching user details in session", e);
+                }
+            }
             return session
         },
         async jwt({ token, user, account }) {

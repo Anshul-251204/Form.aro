@@ -8,6 +8,10 @@ declare module "next-auth" {
         user: {
             /** The user's postal address. */
             id: string
+            aiDetails?: {
+                count: number
+                limit: number
+            }
         } & DefaultSession["user"]
     }
 }

@@ -15,7 +15,7 @@ const PLANS = [
         id: "basic",
         name: "Basic",
         forms: 10,
-        price: 5,
+        price: 50,
         features: ["10 AI Form Generations", "Basic Support", "Analytics"]
     },
     {
@@ -134,7 +134,7 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
     return createPortal(
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={onClose}
         >
             <div
@@ -177,7 +177,7 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
                                 <ul className="mt-6 space-y-3 flex-1">
                                     {plan.features.map((feature, i) => (
                                         <li key={i} className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-                                            <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                                            <Check className="h-4 w-4 text-green-500 shrink-0" />
                                             {feature}
                                         </li>
                                     ))}
