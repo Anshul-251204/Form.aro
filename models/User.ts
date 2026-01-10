@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
     image: String,
     aiDetails: {
         count: { type: Number, default: 0 },
+        limit: { type: Number, default: 3 },
         lastUsed: { type: Date }
     }
 }, { timestamps: true });

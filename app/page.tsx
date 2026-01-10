@@ -1,6 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, BarChart3, Code2, Layout, Lock, Server, Zap, Sparkles, Wand2, Bot } from "lucide-react"
-import { Footer } from "@/components/Footer"
+import { BarChart3, Code2, Layout, Lock, Server, Zap, Sparkles, Wand2, Bot } from "lucide-react"
 import FormAroLogo from "@/components/TextLogo"
 import { Hero } from "@/components/Hero"
 
@@ -205,7 +204,7 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   )
 }

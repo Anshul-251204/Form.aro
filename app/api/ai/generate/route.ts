@@ -82,10 +82,13 @@ export async function POST(req: Request) {
             currentCount = 0;
         }
 
-        if (currentCount >= Number(process.env.AI_GENERATION_LIMIT || 100)) {
+        // Default to a small free limit if not set (e.g., 3), or the one from DB
+        const maxLimit = user.aiDetails?.limit || Number(process.env.AI_GENERATION_LIMIT || 3);
+
+        if (currentCount >= maxLimit) {
             return NextResponse.json({
                 error: 'Daily limit reached',
-                message: `You have reached your daily limit of ${process.env.AI_GENERATION_LIMIT} AI form generations. Please try again tomorrow.`
+                message: `You have reached your limit of ${maxLimit} AI form generations. Please upgrade your plan for more.`
             }, { status: 429 });
         }
 

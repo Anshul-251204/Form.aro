@@ -2,13 +2,15 @@
 
 import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
-import { Layout, LogOut, Plus, Settings, User } from "lucide-react"
+import { Layout, LogOut, Plus, Settings, User, Zap } from "lucide-react"
 import FormAroLogo from "@/components/TextLogo"
 import { useState } from "react"
+import { PricingModal } from "./PricingModal"
 
 export function DashboardHeader() {
     const { data: session } = useSession()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isPricingOpen, setIsPricingOpen] = useState(false)
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md">
@@ -31,7 +33,13 @@ export function DashboardHeader() {
                         >
                             Forms
                         </Link> */}
-                        {/* Add more links here as needed */}
+                        <button
+                            onClick={() => setIsPricingOpen(true)}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 rounded-full text-xs font-semibold transition-colors"
+                        >
+                            <Zap className="h-3.5 w-3.5 fill-current" />
+                            <span>Upgrade</span>
+                        </button>
                     </nav>
                 </div>
 
@@ -42,7 +50,7 @@ export function DashboardHeader() {
                         className="flex sm:hidden items-center justify-center h-9 w-9 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                         <Plus className="h-5 w-5" />
-                    </Link>                   
+                    </Link>
 
                     <div className="relative">
                         <button
@@ -77,6 +85,16 @@ export function DashboardHeader() {
                                             <Layout className="h-4 w-4" />
                                             Dashboard
                                         </Link>
+                                        <button
+                                            onClick={() => {
+                                                setIsMenuOpen(false);
+                                                setIsPricingOpen(true);
+                                            }}
+                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+                                        >
+                                            <Zap className="h-4 w-4" />
+                                            Upgrade Plan
+                                        </button>
                                     </div>
 
                                     {/* <div className="p-1">
@@ -104,6 +122,7 @@ export function DashboardHeader() {
                     </div>
                 </div>
             </div>
+            <PricingModal isOpen={isPricingOpen} onClose={() => setIsPricingOpen(false)} />
         </header>
     )
 }
