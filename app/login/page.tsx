@@ -10,5 +10,5 @@ export default async function SignInPage() {
         redirect("/dashboard")
     }
 
-    return <LoginForm />
+    return <LoginForm enableGoogleAuth={process.env.GOOGLE_AUTH_ON === "true"} />
 }
