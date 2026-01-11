@@ -4,6 +4,7 @@ import { Check, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { createPortal } from "react-dom"
+import { getSession } from "next-auth/react"
 
 interface PricingModalProps {
     isOpen: boolean
@@ -38,6 +39,7 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
     const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
     const { showToast } = useToast()
     const router = useRouter()
+    const session = getSession()
 
     const loadRazorpay = () => {
         return new Promise((resolve) => {
@@ -80,7 +82,7 @@ export function PricingModal({ isOpen, onClose }: PricingModalProps) {
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
                 amount: order.amount,
                 currency: order.currency,
-                name: "FormHost AI",
+                name: "Form.aro",
                 description: `Purchase ${plan.name} Plan`,
                 order_id: order.id,
                 handler: async function (response: any) {
