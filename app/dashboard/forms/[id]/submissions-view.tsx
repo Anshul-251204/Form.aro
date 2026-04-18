@@ -40,12 +40,80 @@ export function SubmissionsView({ formId, formTitle, fields, submissions, views 
     }
 
     const downloadQRCode = () => {
-        const canvas = document.getElementById("qr-code-canvas") as HTMLCanvasElement;
-        if (!canvas) return;
-        const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        const qrCanvas = document.getElementById("qr-code-canvas-download") as HTMLCanvasElement;
+        if (!qrCanvas) return;
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const width = 800;
+        const height = 1000;
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = "#171717";
+        ctx.font = "bold 48px 'Inter', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        
+        const maxWidth = 700;
+        const words = formTitle.split(' ');
+        let line = '';
+        let y = 100;
+        
+        for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + ' ';
+            const metrics = ctx.measureText(testLine);
+            if (metrics.width > maxWidth && n > 0) {
+                ctx.fillText(line, width / 2, y);
+                line = words[n] + ' ';
+                y += 60;
+            } else {
+                line = testLine;
+            }
+        }
+        ctx.fillText(line, width / 2, y);
+
+        y += 80;
+        ctx.fillStyle = "#525252";
+        ctx.font = "28px 'Inter', sans-serif";
+        ctx.fillText("Scan this QR code with your phone's camera", width / 2, y);
+        ctx.fillText("to access and fill out the form.", width / 2, y + 40);
+
+        y += 120;
+        const qrSize = 400;
+        const qrX = (width - qrSize) / 2;
+        
+        ctx.shadowColor = "rgba(0, 0, 0, 0.05)";
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 10;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.roundRect(qrX - 20, y - 20, qrSize + 40, qrSize + 40, 20);
+        ctx.fill();
+        
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+
+        ctx.strokeStyle = "#e5e5e5";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(qrX - 20, y - 20, qrSize + 40, qrSize + 40);
+
+        ctx.drawImage(qrCanvas, qrX, y, qrSize, qrSize);
+
+        ctx.fillStyle = "#a3a3a3";
+        ctx.font = "24px 'Inter', sans-serif";
+        ctx.fillText("Powered by Form.aro", width / 2, height - 80);
+
+        const pngUrl = canvas.toDataURL("image/png", 1.0).replace("image/png", "image/octet-stream");
         const downloadLink = document.createElement("a");
         downloadLink.href = pngUrl;
-        downloadLink.download = `${formTitle.toLowerCase().replace(/\s+/g, '-')}-qrcode.png`;
+        downloadLink.download = `${formTitle.toLowerCase().replace(/\s+/g, '-')}-poster.png`;
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
@@ -238,6 +306,15 @@ export function SubmissionsView({ formId, formTitle, fields, submissions, views 
                                     level="H"
                                     includeMargin={true}
                                 />
+                                <div className="hidden">
+                                    <QRCodeCanvas
+                                        id="qr-code-canvas-download"
+                                        value={formUrl}
+                                        size={1000}
+                                        level="H"
+                                        includeMargin={true}
+                                    />
+                                </div>
                             </div>
                             <p className="text-sm text-center text-neutral-500 dark:text-neutral-400">
                                 Scan this QR code to access and fill out the form.
