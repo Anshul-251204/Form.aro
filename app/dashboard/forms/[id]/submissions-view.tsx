@@ -1,10 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowLeft, Download, ChevronDown, ChevronRight, Calculator, Eye, FileText } from "lucide-react"
+import { ArrowLeft, Download, ChevronDown, ChevronRight, Calculator, Eye, FileText, QrCode, X } from "lucide-react"
 import { ClientSideTimestamp } from "@/components/ClientSideTimestamp"
-import { useState, Fragment } from "react"
+import { useState, Fragment, useEffect } from "react"
 import { FormField } from "@/store/form-editor"
+import { QRCodeCanvas } from "qrcode.react"
 
 interface Submission {
     id: string
@@ -22,12 +23,32 @@ interface SubmissionsViewProps {
 
 export function SubmissionsView({ formId, formTitle, fields, submissions, views }: SubmissionsViewProps) {
     const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({})
+    const [isQRModalOpen, setIsQRModalOpen] = useState(false)
+    const [formUrl, setFormUrl] = useState("")
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setFormUrl(`${window.location.origin}/submit/${formId}`)
+        }
+    }, [formId])
 
     const toggleRow = (id: string) => {
         setExpandedRows(prev => ({
             ...prev,
             [id]: !prev[id]
         }))
+    }
+
+    const downloadQRCode = () => {
+        const canvas = document.getElementById("qr-code-canvas") as HTMLCanvasElement;
+        if (!canvas) return;
+        const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        const downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        downloadLink.download = `${formTitle.toLowerCase().replace(/\s+/g, '-')}-qrcode.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
     }
 
     const handleExportCSV = () => {
@@ -79,14 +100,23 @@ export function SubmissionsView({ formId, formTitle, fields, submissions, views 
                                 Form ID: {formId}
                             </p>
                         </div>
-                        <button
-                            onClick={handleExportCSV}
-                            disabled={submissions.length === 0}
-                            className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <Download className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:block">Export CSV</span>
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setIsQRModalOpen(true)}
+                                className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
+                            >
+                                <QrCode className="mr-2 h-4 w-4" />
+                                <span className="hidden sm:block">Share QR</span>
+                            </button>
+                            <button
+                                onClick={handleExportCSV}
+                                disabled={submissions.length === 0}
+                                className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Download className="mr-2 h-4 w-4" />
+                                <span className="hidden sm:block">Export CSV</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -186,6 +216,54 @@ export function SubmissionsView({ formId, formTitle, fields, submissions, views 
                     )}
                 </div>
             </div>
+
+            {isQRModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-sm rounded-xl bg-white dark:bg-neutral-900 p-6 shadow-xl border border-neutral-200 dark:border-neutral-800">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Share Form</h2>
+                            <button
+                                onClick={() => setIsQRModalOpen(false)}
+                                className="rounded-full p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 transition-colors"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="flex flex-col items-center justify-center gap-6">
+                            <div className="bg-white p-4 rounded-xl shadow-sm border border-neutral-100">
+                                <QRCodeCanvas
+                                    id="qr-code-canvas"
+                                    value={formUrl}
+                                    size={200}
+                                    level="H"
+                                    includeMargin={true}
+                                />
+                            </div>
+                            <p className="text-sm text-center text-neutral-500 dark:text-neutral-400">
+                                Scan this QR code to access and fill out the form.
+                            </p>
+                            <div className="w-full space-y-3">
+                                <button
+                                    onClick={downloadQRCode}
+                                    className="w-full inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-colors"
+                                >
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Download QR Code
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(formUrl);
+                                        alert("Link copied to clipboard!");
+                                    }}
+                                    className="w-full inline-flex items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-900 dark:text-white shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                                >
+                                    Copy Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
